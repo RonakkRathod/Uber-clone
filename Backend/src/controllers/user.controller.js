@@ -3,15 +3,14 @@ import {asyncHandler} from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import { validationResult } from "express-validator";
 import { ApiResponse } from "../utils/ApiResponse.js";
+import jwt from "jsonwebtoken";
+import { TokenBlacklist } from "../Models/tokenBlacklist.model.js";
 
 const generateAuthToken = async (userId) => {
     try {
         const user = await User.findById(userId)
         const authToken =  user.generateAuthToken()
 
-        user.authToken = authToken
-        await user.save({ validateBeforeSave : false})
-   
         return {authToken};
 
     } catch (error) {
@@ -19,7 +18,6 @@ const generateAuthToken = async (userId) => {
         throw new ApiError(500," Something Went Wrong While Generating auth Token");
     }
 }
-
 
 const registerUser = asyncHandler(async (req,res) => {
 
@@ -81,7 +79,6 @@ const registerUser = asyncHandler(async (req,res) => {
     );
 })
 
-
 const loginUser = asyncHandler(async (req,res) => {
 
     const errors = validationResult(req);
@@ -132,8 +129,36 @@ const getUserProfile = asyncHandler(async (req, res) => {
     )
 })
 
+const logoutUser = asyncHandler(async (req, res) => {
+    const authHeader = req.header("Authorization") || "";
+    const bearerToken = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : "";
+    const token = req.cookies?.authToken || bearerToken;
+
+    if (!token) {
+        throw new ApiError(401, "Unauthorized request");
+    }
+
+    const decoded = jwt.verify(token, process.env.AUTH_TOKEN_SECRET);
+    const expiresAt = new Date(decoded.exp * 1000);
+
+    await TokenBlacklist.create({ token, expiresAt });
+
+    res.clearCookie("authToken", {
+        httpOnly: true,
+        secure: true,
+        sameSite: "None"
+    });
+
+    return res.status(200).json(
+        new ApiResponse(200, null, "User logged out successfully")
+    );
+});
+
+
+
 export {
     registerUser,
     loginUser,
-    getUserProfile
+    getUserProfile,
+    logoutUser
 }
