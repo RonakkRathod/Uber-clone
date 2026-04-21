@@ -137,3 +137,46 @@ sequenceDiagram
   API->>API: verify JWT + attach req.user
   API-->>Client: 200 OK + user profile
 ```
+
+## Logout User
+
+**Endpoint**
+POST api/v1/users/logout
+
+**What it does**
+Logs out the current user session by blacklisting the active token and clearing the `authToken` cookie.
+
+### Auth Required
+Yes. Send one of the following:
+- Header: `Authorization: Bearer <token>`
+- Cookie: `authToken=<token>`
+
+### Request Body
+No body required.
+
+### Example Request
+```
+POST /api/v1/users/logout
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+```
+
+### Success Response
+**Status**: 200 OK
+
+```
+{
+  "statusCode": 200,
+  "data": null,
+  "message": "User logged out successfully"
+}
+```
+
+### Error Responses
+| Status | When it happens |
+| --- | --- |
+| 401 Unauthorized | Missing token, invalid token, expired token, or blacklisted token |
+| 500 Internal Server Error | Unexpected error while logging out |
+
+### After Logout
+- The token used for logout is stored in blacklist until it expires.
+- Any protected route call with that same token returns 401.
