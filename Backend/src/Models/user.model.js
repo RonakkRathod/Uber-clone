@@ -23,11 +23,10 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true,
         minlength: [6,"Password should be at least 6 characters long"],
-        select: false
     },
     socketId: {
         type: String
-    }
+    },
 })
 
 userSchema.pre("save", async function () {
