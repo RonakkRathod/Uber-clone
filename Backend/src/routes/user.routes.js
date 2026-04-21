@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { body } from  "express-validator";
-import { registerUser, loginUser, getUserProfile } from "../controllers/user.controller.js";
+import { registerUser, loginUser, getUserProfile, logoutUser } from "../controllers/user.controller.js";
 import { authUser } from "../middleware/auth.middleware.js";
 
 const router = Router();
@@ -18,6 +18,8 @@ router.post('/login',[
 ],loginUser)
 
 router.get('/profile', authUser, getUserProfile)
+
+router.post('/logout', authUser, logoutUser)
 
 
 
