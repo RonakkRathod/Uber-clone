@@ -256,3 +256,154 @@ Content-Type: application/json
 | 400 Bad Request | Validation error or missing required fields |
 | 409 Conflict | Captain with the email already exists |
 | 500 Internal Server Error | Unexpected error while registering captain |
+
+## Login Captain
+
+**Endpoint**
+POST api/v1/captain/login
+
+**What it does**
+Authenticates a captain and returns an auth token on success.
+
+### Request Body
+Content-Type: application/json
+
+**Example**
+```
+{
+  "email": "captain@example.com",
+  "password": "secret123"
+}
+```
+
+**Fields**
+| Field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| email | string | Yes | Must be a valid email format |
+| password | string | Yes | Must not be empty |
+
+### Success Response
+**Status**: 200 OK
+
+```
+{
+  "statusCode": 200,
+  "data": {
+    "authToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "loggedInCaptain": {
+      "_id": "6620abcd0a0a0a0a0a0a0a0a",
+      "fullName": {
+        "firstName": "Ravi",
+        "lastName": "Sharma"
+      },
+      "email": "captain@example.com",
+      "status": "inactive",
+      "vehicle": {
+        "color": "Black",
+        "plate": "GJ01AB1234",
+        "capacity": 4,
+        "vehicleType": "car"
+      }
+    }
+  },
+  "message": "Captain Logged in Successfully"
+}
+```
+
+### Error Responses
+| Status | When it happens |
+| --- | --- |
+| 400 Bad Request | Validation error (invalid email format or missing password) |
+| 401 Unauthorized | Email and password are required, or password is invalid |
+| 404 Not Found | Captain not found |
+| 500 Internal Server Error | Unexpected error while logging in |
+
+## Captain Profile
+
+**Endpoint**
+GET api/v1/captain/profile
+
+**What it does**
+Returns the authenticated captain profile.
+
+### Auth Required
+Yes. Send one of the following:
+- Header: `Authorization: Bearer <token>`
+- Cookie: `authToken=<token>`
+
+### Request Body
+No body required.
+
+### Success Response
+**Status**: 200 OK
+
+```
+{
+  "statusCode": 200,
+  "data": {
+    "_id": "6620abcd0a0a0a0a0a0a0a0a",
+    "fullName": {
+      "firstName": "Ravi",
+      "lastName": "Sharma"
+    },
+    "email": "captain@example.com",
+    "status": "inactive",
+    "vehicle": {
+      "color": "Black",
+      "plate": "GJ01AB1234",
+      "capacity": 4,
+      "vehicleType": "car"
+    }
+  },
+  "message": "Captain Profile Fetched Successfully"
+}
+```
+
+### Error Responses
+| Status | When it happens |
+| --- | --- |
+| 401 Unauthorized | Missing token, invalid token, expired token, or blacklisted token |
+| 500 Internal Server Error | Unexpected error while fetching profile |
+
+## Logout Captain
+
+**Endpoint**
+POST api/v1/captain/logout
+
+**What it does**
+Logs out the current captain session by blacklisting the active token and clearing the `authToken` cookie.
+
+### Auth Required
+Yes. Send one of the following:
+- Header: `Authorization: Bearer <token>`
+- Cookie: `authToken=<token>`
+
+### Request Body
+No body required.
+
+### Example Request
+```
+POST /api/v1/captain/logout
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+```
+
+### Success Response
+**Status**: 200 OK
+
+```
+{
+  "statusCode": 200,
+  "data": null,
+  "message": "Captain logged out successfully"
+}
+```
+
+### Error Responses
+| Status | When it happens |
+| --- | --- |
+| 401 Unauthorized | Missing token, invalid token, expired token, or blacklisted token |
+| 500 Internal Server Error | Unexpected error while logging out |
+
+### After Logout
+- The token used for logout is stored in blacklist until it expires.
+- Any protected captain route call with that same token returns 401.
