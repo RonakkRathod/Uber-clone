@@ -18,6 +18,7 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true,
         unique: true,
+        index: true,
     },
     password :{
         type: String,
@@ -37,14 +38,14 @@ userSchema.pre("save", async function () {
 }) 
 
 userSchema.methods.generateAuthToken = function () {
-     return jwt.sign(
+    return jwt.sign(
         {
             _id : this._id,
         },
-     process.env.AUTH_TOKEN_SECRET,
-     {
+    process.env.AUTH_TOKEN_SECRET,
+    {
         expiresIn : process.env.AUTH_TOKEN_EXPIRY
-     }
+    }
     )
 }
 
