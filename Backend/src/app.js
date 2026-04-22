@@ -5,6 +5,8 @@ import express from "express";
 import cors from "cors"
 import cookieParser from "cookie-parser";
 import UserRouter from "./routes/user.routes.js";
+import CaptainRouter from "./routes/captain.routes.js";
+
 
 const app = express();
 
@@ -21,6 +23,7 @@ app.get("/", (req, res) => {
 
 // http://localhost:7000/api/v1/users
 app.use("/api/v1/users", UserRouter);
+app.use("/api/v1/captain", CaptainRouter);
 
 // Centralized error handler 
 app.use((err, req, res, next) => {
