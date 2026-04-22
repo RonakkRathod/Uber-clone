@@ -180,3 +180,79 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ### After Logout
 - The token used for logout is stored in blacklist until it expires.
 - Any protected route call with that same token returns 401.
+
+## Register Captain
+
+**Endpoint**
+POST api/v1/captain/register
+
+**What it does :**
+Creates a new captain account with vehicle details and returns a captain auth token on success.
+
+### Request Body
+Content-Type: application/json
+
+**Example**
+```
+{
+  "fullName": {
+    "firstName": "Ravi",
+    "lastName": "Sharma"
+  },
+  "email": "captain@example.com",
+  "password": "secret123",
+  "vehicle": {
+    "color": "Black",
+    "plate": "GJ01AB1234",
+    "capacity": 4,
+    "vehicleType": "car"
+  }
+}
+```
+
+**Fields**
+| Field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| fullName.firstName | string | Yes | Must not be empty |
+| fullName.lastName | string | Yes | Must not be empty |
+| email | string | Yes | Must be a valid email format |
+| password | string | Yes | Minimum 6 characters |
+| vehicle.color | string | Yes | Must not be empty |
+| vehicle.plate | string | Yes | Must not be empty |
+| vehicle.capacity | number | Yes | Must be an integer >= 1 |
+| vehicle.vehicleType | string | Yes | Allowed: car, motorcycle, autoRickshaw |
+
+### Success Response
+**Status**: 201 Created
+
+```
+{
+  "statusCode": 200,
+  "data": {
+    "createdCaptain": {
+      "_id": "6620abcd0a0a0a0a0a0a0a0a",
+      "fullName": {
+        "firstName": "Ravi",
+        "lastName": "Sharma"
+      },
+      "email": "captain@example.com",
+      "status": "inactive",
+      "vehicle": {
+        "color": "Black",
+        "plate": "GJ01AB1234",
+        "capacity": 4,
+        "vehicleType": "car"
+      }
+    },
+    "captainToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+  },
+  "message": "Captain Registered Successfully"
+}
+```
+
+### Error Responses
+| Status | When it happens |
+| --- | --- |
+| 400 Bad Request | Validation error or missing required fields |
+| 409 Conflict | Captain with the email already exists |
+| 500 Internal Server Error | Unexpected error while registering captain |
