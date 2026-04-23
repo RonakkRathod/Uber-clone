@@ -1,18 +1,36 @@
-import React, { useState } from "react";
+/* eslint-disable no-unused-vars */
+import React, { useContext, useState } from "react";
 import { Link } from "react-router-dom";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import { CaptainContext } from "../context/CaptainContext";
 
 const CaptainLogin = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  // eslint-disable-next-line no-unused-vars
   const [captainData, setCaptainData] = useState({});
+  
+  const navigate = useNavigate()
+  const { captain, setCaptain } = useContext(CaptainContext);
 
-  const submitHandler = (e) => {
+  const submitHandler = async (e) => {
     e.preventDefault();
-    setCaptainData({
+    const captain = {
       email,
       password,
-    });
+    };
+
+    const response = await axios.post(
+      `${import.meta.env.VITE_BASE_URL}/captain/login`,
+      captain
+    );
+
+    if (response.status === 200) {
+      const data = response.data?.data;
+      setCaptainData(data?.loggedInCaptain);
+      localStorage.setItem("token", data?.authToken);
+      navigate("/captain-home");
+    }
     setEmail("");
     setPassword("");
   };
