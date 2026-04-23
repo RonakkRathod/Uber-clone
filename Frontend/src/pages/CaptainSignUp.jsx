@@ -1,5 +1,9 @@
-import React, { useState } from "react";
+/* eslint-disable no-unused-vars */
+import React, { useContext, useState } from "react";
 import { Link } from "react-router-dom";
+import { CaptainContext } from "../context/CaptainContext.jsx";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const CaptainSignUp = () => {
   const [email, setEmail] = useState("");
@@ -12,7 +16,10 @@ const CaptainSignUp = () => {
   const [vehicleType, setVehicleType] = useState("");
   const [captainData, setCaptainData] = useState({});
 
-  const submitHandler = (e) => {
+  const { captain, setCaptain } = useContext(CaptainContext)
+  const navigate = useNavigate();
+
+  const submitHandler = async (e) => {
     e.preventDefault();
     const captainPayload = {
       fullName: {
@@ -29,8 +36,18 @@ const CaptainSignUp = () => {
       },
     };
 
-    setCaptainData(captainPayload);
-    console.log(captainPayload, captainData);
+    const response = await axios.post(
+      `${import.meta.env.VITE_BASE_URL}/captain/register`,
+      captainPayload,
+    );
+
+    if (response.status === 201) {
+      const data = response.data?.data;
+
+      setCaptain(data?.createdCaptain);
+      localStorage.setItem("token", data?.captainToken);
+      navigate("/captain-home");
+    }
 
     setEmail("");
     setPassword("");
