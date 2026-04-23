@@ -41,7 +41,7 @@ const registerCaptain = asyncHandler(async (req,res) => {
    const {fullName:{firstName, lastName},email,password,vehicle:{color, plate, capacity, vehicleType}} = req.body
 
     //validation check if field are not empty
-    if ( [firstName,lastName,email,password,color,plate,capacity,   vehicleType].some( (field) => field?.trim() === "" ) ) {
+    if ( [firstName,lastName,email,password,color,plate,].some( (field) => field?.trim() === "" ) ) {
         throw new ApiError(400,"All Fields are Required")
     }
 
