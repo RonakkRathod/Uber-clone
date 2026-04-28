@@ -609,3 +609,50 @@ Content-Type: application/json
 | 400 Bad Request | Validation error or missing/invalid fields |
 | 401 Unauthorized | Missing token, invalid token, expired token, or blacklisted token |
 | 500 Internal Server Error | Unexpected error while creating ride |
+
+## Get Ride Fare
+
+**Endpoint**
+GET api/v1/ride/fare
+
+**What it does**
+Calculates fare estimates for available vehicle types between pickup and destination.
+
+### Auth Required
+Yes. Send one of the following:
+- Header: `Authorization: Bearer <token>`
+- Cookie: `authToken=<token>`
+
+### Query Params
+| Param | Type | Required | Notes |
+| --- | --- | --- | --- |
+| pickupLocation | string | Yes | Min length 3 |
+| destination | string | Yes | Min length 3 |
+
+### Example Request
+```
+GET /api/v1/ride/fare?pickupLocation=Kankaria%20Lake%2C%20Ahmedabad&destination=IIM%20Ahmedabad
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+```
+
+### Success Response
+**Status**: 200 OK
+
+```
+{
+  "statusCode": 200,
+  "data": {
+    "auto": 120,
+    "motorcycle": 95,
+    "car": 180
+  },
+  "message": "Fare calculated successfully"
+}
+```
+
+### Error Responses
+| Status | When it happens |
+| --- | --- |
+| 400 Bad Request | Validation error or missing/invalid params |
+| 401 Unauthorized | Missing token, invalid token, expired token, or blacklisted token |
+| 500 Internal Server Error | Unexpected error while calculating fare |
