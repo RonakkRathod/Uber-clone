@@ -407,3 +407,205 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ### After Logout
 - The token used for logout is stored in blacklist until it expires.
 - Any protected captain route call with that same token returns 401.
+
+## Maps: Get Coordinates
+
+**Endpoint**
+GET api/v1/map/maps
+
+**What it does**
+Returns latitude and longitude for the given address.
+
+### Auth Required
+Yes. Send one of the following:
+- Header: `Authorization: Bearer <token>`
+- Cookie: `authToken=<token>`
+
+### Query Params
+| Param | Type | Required | Notes |
+| --- | --- | --- | --- |
+| address | string | Yes | Min length 3 |
+
+### Example Request
+```
+GET /api/v1/map/maps?address=Kankaria%20Lake%2C%20Ahmedabad
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+```
+
+### Success Response
+**Status**: 200 OK
+
+```
+{
+  "statusCode": 200,
+  "data": {
+    "lat": 23.0075,
+    "lng": 72.6006
+  },
+  "message": "Coordinates retrieved successfully"
+}
+```
+
+### Error Responses
+| Status | When it happens |
+| --- | --- |
+| 400 Bad Request | Validation error or missing address |
+| 401 Unauthorized | Missing token, invalid token, expired token, or blacklisted token |
+| 404 Not Found | Address not found |
+| 500 Internal Server Error | Unexpected error while fetching coordinates |
+
+## Maps: Get Distance
+
+**Endpoint**
+GET api/v1/map/get-distance
+
+**What it does**
+Returns distance and time between origin and destination.
+
+### Auth Required
+Yes. Send one of the following:
+- Header: `Authorization: Bearer <token>`
+- Cookie: `authToken=<token>`
+
+### Query Params
+| Param | Type | Required | Notes |
+| --- | --- | --- | --- |
+| origin | string | Yes | Min length 3 |
+| destination | string | Yes | Min length 3 |
+
+### Example Request
+```
+GET /api/v1/map/get-distance?origin=Kankaria%20Lake%2C%20Ahmedabad&destination=IIM%20Ahmedabad
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+```
+
+### Success Response
+**Status**: 200 OK
+
+```
+{
+  "statusCode": 200,
+  "data": {
+    "origin": { "lat": 23.0075, "lng": 72.6006 },
+    "destination": { "lat": 23.0371, "lng": 72.5257 },
+    "distance": 9100,
+    "duration": 1500,
+    "distanceInKm": 9.1,
+    "durationInHours": 0.42
+  },
+  "message": "Distance and time retrieved successfully"
+}
+```
+
+### Error Responses
+| Status | When it happens |
+| --- | --- |
+| 400 Bad Request | Validation error or missing params |
+| 401 Unauthorized | Missing token, invalid token, expired token, or blacklisted token |
+| 500 Internal Server Error | Unexpected error while fetching distance/time |
+
+## Maps: Get Suggestions
+
+**Endpoint**
+GET api/v1/map/suggestions
+
+**What it does**
+Returns address suggestions for the given input string.
+
+### Auth Required
+Yes. Send one of the following:
+- Header: `Authorization: Bearer <token>`
+- Cookie: `authToken=<token>`
+
+### Query Params
+| Param | Type | Required | Notes |
+| --- | --- | --- | --- |
+| input | string | Yes | Min length 3 |
+
+### Example Request
+```
+GET /api/v1/map/suggestions?input=Kankaria
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+```
+
+### Success Response
+**Status**: 200 OK
+
+```
+{
+  "statusCode": 200,
+  "data": [
+    {
+      "displayName": "Kankaria Lake, Ahmedabad, Gujarat, India",
+      "lat": 23.0075,
+      "lng": 72.6006
+    }
+  ],
+  "message": "Address suggestions retrieved successfully"
+}
+```
+
+### Error Responses
+| Status | When it happens |
+| --- | --- |
+| 400 Bad Request | Validation error or missing input |
+| 401 Unauthorized | Missing token, invalid token, expired token, or blacklisted token |
+| 500 Internal Server Error | Unexpected error while fetching suggestions |
+
+## Create Ride
+
+**Endpoint**
+POST api/v1/ride/create
+
+**What it does**
+Creates a new ride request for the authenticated user and returns the ride details.
+
+### Auth Required
+Yes. Send one of the following:
+- Header: `Authorization: Bearer <token>`
+- Cookie: `authToken=<token>`
+
+### Request Body
+Content-Type: application/json
+
+**Example**
+```
+{
+  "pickupLocation": "Kankaria Lake, Ahmedabad",
+  "destination": "IIM Ahmedabad",
+  "vehicleType": "car"
+}
+```
+
+**Fields**
+| Field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| pickupLocation | string | Yes | Min length 3 |
+| destination | string | Yes | Min length 3 |
+| vehicleType | string | Yes | Allowed: auto, motorcycle, car |
+
+### Success Response
+**Status**: 201 Created
+
+```
+{
+  "statusCode": 201,
+  "data": {
+    "_id": "6630abcd0a0a0a0a0a0a0a0a",
+    "userId": "661f2d2b0a0a0a0a0a0a0a0a",
+    "pickupLocation": "Kankaria Lake, Ahmedabad",
+    "destination": "IIM Ahmedabad",
+    "fare": 185,
+    "status": "pending",
+    "otp": "4821"
+  },
+  "message": "Ride created successfully"
+}
+```
+
+### Error Responses
+| Status | When it happens |
+| --- | --- |
+| 400 Bad Request | Validation error or missing/invalid fields |
+| 401 Unauthorized | Missing token, invalid token, expired token, or blacklisted token |
+| 500 Internal Server Error | Unexpected error while creating ride |
