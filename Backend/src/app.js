@@ -6,7 +6,8 @@ import cors from "cors"
 import cookieParser from "cookie-parser";
 import UserRouter from "./routes/user.routes.js";
 import CaptainRouter from "./routes/captain.routes.js";
-
+import MapRouter from "./routes/maps.routes.js"
+import RideRouter from "./routes/ride.routes.js"
 
 const app = express();
 
@@ -24,6 +25,8 @@ app.get("/", (req, res) => {
 // http://localhost:7000/api/v1/users
 app.use("/api/v1/users", UserRouter);
 app.use("/api/v1/captain", CaptainRouter);
+app.use("/api/v1/map", MapRouter);
+app.use("/api/v1/ride", RideRouter);
 
 // Centralized error handler 
 app.use((err, req, res, next) => {
